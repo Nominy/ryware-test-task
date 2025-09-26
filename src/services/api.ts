@@ -1,5 +1,6 @@
 import type { ParkingMeter, ParkingMeterFull } from "../types";
-import { useQuery, queryOptions } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, queryOptions } from "@tanstack/react-query";
+import type { Address } from "../types";
 
 const RAW_API_BASE_URL = (import.meta.env.VITE_API_URL ?? "").toString().trim();
 
@@ -22,6 +23,7 @@ function buildApiUrl(pathname: string): URL {
   return new URL(trimmed, API_BASE);
 }
 
+// the scary function, because no typesafe api, we don't use tRPC(
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function fetchJson<T>(url: URL, init?: RequestInit): Promise<T> {
   const response = await fetch(url, {
@@ -91,4 +93,67 @@ export function useParkings() {
 
 export function useParkingById(id: string) {
   return useQuery(parkingByIdQueryOptions(id));
+}
+
+export interface CreateParkingInput {
+  address: Address;
+  status?: boolean;
+}
+
+export function useCreateParking() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (input: CreateParkingInput): Promise<ParkingMeter> => {
+      const url = buildApiUrl("parkings");
+      return fetchJson<ParkingMeter>(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(input),
+      });
+    },
+    onSuccess: () => {
+      void queryClient.invalidateQueries({ queryKey: parkingKeys.list() });
+    },
+  });
+}
+
+export function useIncrementParkingUsage() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string): Promise<ParkingMeter> => {
+      const url = buildApiUrl(`parkings/usage/${encodeURIComponent(id)}`);
+      return fetchJson<ParkingMeter>(url, {
+        method: "PUT",
+      });
+    },
+    onSuccess: (_data, id) => {
+      void queryClient.invalidateQueries({ queryKey: parkingKeys.list() });
+      if (id) {
+        void queryClient.invalidateQueries({ queryKey: parkingKeys.detail(id) });
+      }
+    },
+  });
+}
+
+export function useToggleParkingStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (id: string): Promise<ParkingMeter> => {
+      const url = buildApiUrl(`parkings/status/${encodeURIComponent(id)}`);
+      return fetchJson<ParkingMeter>(url, {
+        method: "PUT",
+      });
+    },
+    onSuccess: (_data, id) => {
+      void queryClient.invalidateQueries({ queryKey: parkingKeys.list() });
+      if (id) {
+        void queryClient.invalidateQueries({ queryKey: parkingKeys.detail(id) });
+      }
+    },
+  });
 }

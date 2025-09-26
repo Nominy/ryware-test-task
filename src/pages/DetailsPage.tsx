@@ -7,6 +7,10 @@ export default function DetailsPage() {
   const id = params.id ?? "";
 
   const { data, isLoading, isError, error } = useParkingById(id);
+  const slug = params.id;
+  if (data) {
+    data.id = slug ?? "";
+  }
 
   return (
     <div>
