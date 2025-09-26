@@ -143,16 +143,26 @@ export function useToggleParkingStatus() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (id: string): Promise<ParkingMeter> => {
+    mutationFn: async ({
+      id,
+      status,
+    }: {
+      id: string;
+      status: boolean;
+    }): Promise<ParkingMeter> => {
       const url = buildApiUrl(`parkings/status/${encodeURIComponent(id)}`);
       return fetchJson<ParkingMeter>(url, {
         method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status }),
       });
     },
-    onSuccess: (_data, id) => {
+    onSuccess: (_data, variables) => {
       void queryClient.invalidateQueries({ queryKey: parkingKeys.list() });
-      if (id) {
-        void queryClient.invalidateQueries({ queryKey: parkingKeys.detail(id) });
+      if (variables?.id) {
+        void queryClient.invalidateQueries({ queryKey: parkingKeys.detail(variables.id) });
       }
     },
   });

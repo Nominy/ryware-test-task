@@ -10,14 +10,13 @@ export default function ListHeader(props: ListHeaderProps) {
   const next = isAsc ? "desc" : "asc";
 
   return (
-    <div className="flex items-center justify-between">
-      {/* <h1 className="text-xl font-semibold">List</h1> */}
+    <div className="flex items-center justify-between py-2">
       <button
         type="button"
-        className="px-3 py-1 rounded border border-gray-300 hover:bg-gray-50"
+        className="btn"
         onClick={() => props.onChangeSortOrder(next)}
         aria-label={`Sort by address ${next}`}
-     >
+      >
         Address {isAsc ? "▲" : "▼"}
       </button>
     </div>

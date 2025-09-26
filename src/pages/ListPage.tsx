@@ -18,11 +18,12 @@ export default function ListPage() {
   );
 
   return (
-    <div>
-      <div className="flex items-center justify-between mb-3">
-        <h1 className="text-xl font-semibold">Parkings</h1>
+    <div className="space-y-4">
+      <div className="flex items-center justify-between">
+        <h1 className="text-2xl font-semibold text-gray-900">Parkings</h1>
         <button
           type="button"
+          className="btn btn-primary"
           onClick={() => setIsCreateOpen(true)}
         >
           New Parking
@@ -32,9 +33,9 @@ export default function ListPage() {
       <ListHeader sortOrder={sortOrder} onChangeSortOrder={setSortOrder} />
       {isLoading && <div>Loading…</div>}
       {isError && <div role="alert">{error.message}</div>}
-      <ul>
-        {Object.entries(sortedItems)?.map(([key, item]) => (
-          <li key={key} className="my-4">
+      <ul className="grid gap-3">
+        {sortedItems?.map((item) => (
+          <li key={item.id}>
             <Link to={`/${item.id}`}>
               <ParkingItemCard cardInfo={item} />
             </Link>
@@ -42,7 +43,10 @@ export default function ListPage() {
         ))}
       </ul>
 
-      <CreateParkingModal open={isCreateOpen} onClose={() => setIsCreateOpen(false)} />
+      <CreateParkingModal
+        open={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+      />
     </div>
   );
 }

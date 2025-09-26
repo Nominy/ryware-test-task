@@ -59,8 +59,8 @@ export default function ParkingForm(props: ParkingFormProps) {
     submitLabel = "Save",
   } = props;
 
-  const handleAddressChange = (field: keyof Address) =>
-    (event: ChangeEvent<HTMLInputElement>) => {
+  const handleAddressChange =
+    (field: keyof Address) => (event: ChangeEvent<HTMLInputElement>) => {
       const { value: fieldValue } = event.target;
       onChange((prev) => ({
         ...prev,
@@ -80,12 +80,15 @@ export default function ParkingForm(props: ParkingFormProps) {
   };
 
   return (
-    <form onSubmit={onSubmit}>
+    <form onSubmit={onSubmit} className="space-y-4">
       {ADDRESS_FIELDS.map(({ id, label, autoComplete }) => (
         <div key={id}>
-          <label htmlFor={id}>{label}</label>
+          <label htmlFor={id} className="label">
+            {label}
+          </label>
           <input
             id={id}
+            className="input"
             ref={id === "street" ? initialFocusRef : undefined}
             value={value.address[id]}
             onChange={handleAddressChange(id)}
@@ -96,9 +99,12 @@ export default function ParkingForm(props: ParkingFormProps) {
       ))}
 
       <div>
-        <label htmlFor="status">Status</label>
+        <label htmlFor="status" className="label">
+          Status
+        </label>
         <select
           id="status"
+          className="input"
           value={value.status ? "enabled" : "disabled"}
           onChange={handleStatusChange}
         >
@@ -110,15 +116,14 @@ export default function ParkingForm(props: ParkingFormProps) {
         </select>
       </div>
 
-      <div>
-        <button type="button" onClick={onCancel}>
+      <div className="flex items-center gap-2 pt-2">
+        <button type="button" className="btn" onClick={onCancel}>
           Cancel
         </button>
-        <button type="submit" disabled={isPending}>
+        <button type="submit" className="btn btn-primary" disabled={isPending}>
           {isPending ? "Creating…" : submitLabel}
         </button>
       </div>
     </form>
   );
 }
-
